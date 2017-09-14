@@ -24,8 +24,7 @@ Texty (Vect cols Tile) where
   toText xs = pack (map tileChar xs)
 
 Texty (Board rows cols) where
-  toText [] = ""
-  toText (x :: xs) = toText x ++ "\n" ++ toText xs
+  toText = concatMap $ \x => toText x ++ "\n"
 
 mkRow : (cols : Nat) -> Vect cols Tile
 mkRow Z
