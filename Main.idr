@@ -1,36 +1,62 @@
 import Data.Matrix
 
-data Tile = Wall | Space | Occupied
+%default total
 
-interface Console a where
-  consoleStr : a -> String
+interface Texty a where
+  toText : a -> String
 
-interface ConsoleChar a where
-  consoleChar : a -> Char
+data Tile
+  = Wall
+  | Empty
+  | Player
+  | Jackal
 
-ConsoleChar Tile where
-  consoleChar Wall = '#'
-  consoleChar Space = '.'
-  consoleChar Occupied = '@'
+Texty Tile where
+  toText Wall
+    = "#"
+  toText Empty
+    = "."
+  toText Player
+    = "@"
+  toText Jackal
+    = "J"
 
-Board : Nat -> Nat -> Type
+Board : (rows : Nat) -> (cols : Nat) -> Type
 Board rows cols = Matrix rows cols Tile
 
-Console (Board rows cols) where
-  consoleStr [] = ""
-  consoleStr (row :: rows) = pack (map consoleChar row) ++ "\n" ++ consoleStr rows
+Texty (Vect cols Tile) where
+  toText [] = ""
+  toText (x :: xs) = toText x ++ toText xs
 
-horzWall : Vect n Tile
-horzWall {n} = replicate n Wall
+Texty (Board rows cols) where
+  toText [] = ""
+  toText (x :: xs) = toText x ++ "\n" ++ toText xs
 
-myboard : Board 3 5
-myboard =
-  [horzWall] ++
-  [[Wall, Space, Space, Occupied, Wall]] ++
-  [horzWall]
+mkRow : (cols : Nat) -> Vect cols Tile
+mkRow Z = []
+mkRow (S Z) = [Wall]
+mkRow (S (S Z)) = [Wall, Wall]
+mkRow (S (S (S k))) = let result = [Wall] ++ replicate (S k) Empty ++ [Wall] in
+                          rewrite plusCommutative 1 k in result
+
+wallsAround : Nat -> Nat
+wallsAround k = S (S k)
+
+mkBoard : (innerRows : Nat) -> (innerCols : Nat) -> (Board (S (S innerRows)) (S (S innerCols)))
+mkBoard Z Z
+  = [ [ Wall, Wall ]
+    , [ Wall, Wall ]
+    ]
+mkBoard Z (S k) = replicate 2 (replicate (wallsAround (S k)) Wall)
+mkBoard (S k) Z = replicate (S (S (S k))) [Wall, Wall]
+mkBoard (S k) (S j)
+  = let result =  [replicate _ Wall]
+               ++ replicate (S k) (mkRow (wallsAround (S j)))
+               ++ [replicate _ Wall] in
+                  rewrite plusCommutative 1 k in result
 
 main : IO ()
-main = putStrLn $ consoleStr myboard
+main = putStr $ toText (mkBoard 10 10)
 
 -- Local Variables:
 -- idris-load-packages: ("contrib")
