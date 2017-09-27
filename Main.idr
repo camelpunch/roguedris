@@ -37,22 +37,20 @@ mkRow (S (S innerCols@(S k)))
   = rewrite plusCommutative 1 k in
     Wall :: replicate innerCols Empty ++ [Wall]
 
-wallsAround : Nat -> Nat
-wallsAround k = S (S k)
+twoMoreThan : Nat -> Nat
+twoMoreThan = S . S
 
-mkBoard : (innerRows : Nat) -> (innerCols : Nat) -> (Board (S (S innerRows)) (S (S innerCols)))
-mkBoard Z Z
-  = [ [ Wall, Wall ]
-    , [ Wall, Wall ]
-    ]
-mkBoard Z innerCols@(S _)
-  = replicate 2 (replicate (wallsAround innerCols) Wall)
-mkBoard innerRows@(S _) Z
-  = replicate (wallsAround innerRows) [Wall, Wall]
-mkBoard (S k) innerCols@(S _)
+mkBoard : (innerRows : Nat) ->
+          (innerCols : Nat) ->
+          (Board (twoMoreThan innerRows) (twoMoreThan innerCols))
+mkBoard Z innerCols
+  = replicate 2 (replicate _ Wall)
+mkBoard innerRows Z
+  = replicate _ [Wall, Wall]
+mkBoard innerRows@(S k) innerCols@(S _)
   = rewrite plusCommutative 1 k in
      replicate _ Wall
-  :: replicate (S k) (mkRow (wallsAround innerCols))
+  :: replicate innerRows (mkRow _)
   ++ [replicate _ Wall]
 
 main : IO ()
