@@ -44,7 +44,7 @@ mkBoard : (innerRows : Nat) ->
           (innerCols : Nat) ->
           (Board (twoMoreThan innerRows) (twoMoreThan innerCols))
 mkBoard Z innerCols
-  = replicate 2 (replicate _ Wall)
+  = replicate _ (replicate _ Wall)
 mkBoard innerRows Z
   = replicate _ [Wall, Wall]
 mkBoard innerRows@(S k) innerCols@(S _)
