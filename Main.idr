@@ -43,10 +43,8 @@ twoMoreThan = S . S
 mkBoard : (innerRows : Nat) ->
           (innerCols : Nat) ->
           (Board (twoMoreThan innerRows) (twoMoreThan innerCols))
-mkBoard Z innerCols
-  = replicate _ (replicate _ Wall)
-mkBoard innerRows Z
-  = replicate _ [Wall, Wall]
+mkBoard Z _ = replicate _ $ replicate _ Wall
+mkBoard _ Z = replicate _ [Wall, Wall]
 mkBoard innerRows@(S k) innerCols@(S _)
   = rewrite plusCommutative 1 k in
      replicate _ Wall
