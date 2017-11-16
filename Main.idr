@@ -1,59 +1,36 @@
-import Data.Matrix
+module Main
 
-%default total
+import System
 
-interface Texty a where
-  toText : a -> String
+import ForeignFunctions
+import Game
 
-data Tile
-  = Wall
-  | Empty
-  | Player
-  | Jackal
+showHealth : Nat -> IO ()
+showHealth hp = do
+  mvaddstr (MkPoint 0 1) $ "Your health: " ++ show hp
+  pure ()
 
-tileChar : Tile -> Char
-tileChar Wall = '#'
-tileChar Empty = '.'
-tileChar Player = '@'
-tileChar Jackal = 'J'
+game : PlayerState (S hp) -> IO Finished
+game {hp} state = do
+  c <- getch
+  mvaddstr (MkPoint 0 0) $ "You pressed " ++ show c
+  showHealth hp
+  (case hp of
+        Z => pure $ Lost (MkPlayerState Z)
+        (S k) => game (MkPlayerState (S k)))
 
-Board : (rows : Nat) -> (cols : Nat) -> Type
-Board rows cols = Matrix rows cols Tile
-
-Texty (Vect cols Tile) where
-  toText xs = pack (map tileChar xs)
-
-Texty (Board rows cols) where
-  toText = concatMap $ \x => toText x ++ "\n"
-
-mkRow : (cols : Nat) -> Vect cols Tile
-mkRow Z
-  = []
-mkRow (S Z)
-  = [Wall]
-mkRow (S (S Z))
-  = [Wall, Wall]
-mkRow (S (S innerCols@(S k)))
-  = rewrite plusCommutative 1 k in
-    Wall :: replicate innerCols Empty ++ [Wall]
-
-twoMoreThan : Nat -> Nat
-twoMoreThan = S . S
-
-mkBoard : (innerRows : Nat) ->
-          (innerCols : Nat) ->
-          (Board (twoMoreThan innerRows) (twoMoreThan innerCols))
-mkBoard Z _ = replicate _ $ replicate _ Wall
-mkBoard _ Z = replicate _ [Wall, Wall]
-mkBoard innerRows@(S k) innerCols@(S _)
-  = rewrite plusCommutative 1 k in
-     replicate _ Wall
-  :: replicate innerRows (mkRow _)
-  ++ [replicate _ Wall]
+startState : PlayerState hp
+startState = MkPlayerState hp
 
 main : IO ()
-main = putStr $ toText (mkBoard 10 10)
-
--- Local Variables:
--- idris-load-packages: ("contrib")
--- End:
+main = do
+  initscr
+  timeout (-1)
+  noecho
+  curs_set 0
+  result <- game (MkPlayerState 10)
+  mvaddstr (MkPoint 0 2) "You are dead."
+  refresh
+  usleep 1000000
+  endwin
+  exit 0
