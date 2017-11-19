@@ -1,4 +1,4 @@
-module ForeignFunctions
+module NCurses
 
 %access export
 %default total
@@ -28,10 +28,14 @@ printw s
    (String -> IO ())
     s
 
-refresh : IO ()
-refresh
-  = foreign FFI_C "refresh"
-   (IO ())
+refresh : IO Int
+refresh = foreign FFI_C "refresh" (IO Int)
+
+erase : IO Int
+erase = foreign FFI_C "erase" (IO Int)
+
+clear : IO Int
+clear = foreign FFI_C "clear" (IO Int)
 
 echo : IO Int
 echo = foreign FFI_C "echo" (IO Int)

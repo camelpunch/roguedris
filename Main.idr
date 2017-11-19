@@ -2,25 +2,22 @@ module Main
 
 import System
 
-import ForeignFunctions
+import NCurses
 import Game
 
-showHealth : Nat -> IO ()
-showHealth hp = do
-  mvaddstr (MkPoint 0 1) $ "Your health: " ++ show hp
-  pure ()
+nextTurn : Char -> PlayerState -> PlayerState
+nextTurn c state@(MkPlayerState Z) = state
+nextTurn c (MkPlayerState (S k)) = MkPlayerState k
 
-game : PlayerState (S hp) -> IO Finished
-game {hp} state = do
+game : PlayerState -> IO Finished
+game state@(MkPlayerState hp) = do
+  mvaddstr (MkPoint 0 0) $ "Your health: " ++ show hp ++ " "
   c <- getch
-  mvaddstr (MkPoint 0 0) $ "You pressed " ++ show c
-  showHealth hp
-  (case hp of
-        Z => pure $ Lost (MkPlayerState Z)
-        (S k) => game (MkPlayerState (S k)))
-
-startState : PlayerState hp
-startState = MkPlayerState hp
+  mvaddstr (MkPoint 0 1) $ "You pressed " ++ show c
+  let state' = nextTurn c state
+  case state' of
+       (MkPlayerState Z) => pure $ Lost state'
+       (MkPlayerState (S k)) => game state'
 
 main : IO ()
 main = do

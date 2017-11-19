@@ -5,12 +5,11 @@ import Data.Vect
 %default total
 %access public export
 
-data PlayerState : (hp : Nat) -> Type where
-     MkPlayerState : (new_hp : Nat) ->
-                     PlayerState new_hp
+data PlayerState : Type where
+     MkPlayerState : (hp : Nat) -> PlayerState
 
 data Finished : Type where
-  Lost : (game : PlayerState Z) -> Finished
+  Lost : (game : PlayerState) -> Finished
 
 data Movement = L | R | U | Still
 
@@ -42,5 +41,7 @@ isValidMovement (MkPos Z _) L = No cannotGoLeft
 isValidMovement pos@(MkPos (S x) _) L = Yes (LeftAvailable pos)
 isValidMovement (MkPos _ Z) U = No cannotGoUp
 isValidMovement pos@(MkPos _ (S k)) U = Yes (UpAvailable pos)
+isValidMovement (MkPos _ _) R = ?isValidMovement_rhs_1
+isValidMovement (MkPos _ _) Still = ?isValidMovement_rhs_2
 
 
