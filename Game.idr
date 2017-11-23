@@ -5,43 +5,51 @@ import Data.Vect
 %default total
 %access public export
 
-data PlayerState : Type where
-     MkPlayerState : (hp : Nat) -> PlayerState
+GameX : Type
+GameX = Fin 20
+
+GameY : Type
+GameY = Fin 15
+
+Show (Fin a) where
+  show n = show $ finToNat n
+
+record Position where
+  constructor MkPos
+  x : GameX
+  y : GameY
+
+Show Position where
+  show (MkPos x y) = show x ++ "x" ++ show y
+
+record PlayerState where
+  constructor MkPlayerState
+  hp : Nat
+  coords : Position
+
+Show PlayerState where
+  show (MkPlayerState hp coords)
+    = "HP: " ++ show hp ++ " -- coords: " ++ show coords
 
 data Finished : Type where
   Lost : (game : PlayerState) -> Finished
 
-data Movement = L | R | U | Still
+data Movement = L | D | U | R
 
-data Position : (x : Nat) -> (y : Nat) -> Type where
-     MkPos : (x : Nat) -> (y : Nat) -> Position x y
+validViMovements : Vect 4 Char
+validViMovements = ['h', 'j', 'k', 'l']
 
-data ValidMovement : Movement -> Position x y -> Type where
-     LeftAvailable : (Position (S x) y) -> ValidMovement L (MkPos (S x) y)
-     RightAvailable : (Position x y) -> ValidMovement R (MkPos x y)
-     UpAvailable   : (Position x (S y)) -> ValidMovement U (MkPos x (S y))
+ViMovement : (c : Char) -> Type
+ViMovement c = Elem c validViMovements
 
-char2KeyPress : Char -> Movement
-char2KeyPress 'h' = L
--- char2KeyPress 'j' = Just Down
-char2KeyPress 'k' = U
--- char2KeyPress 'l' = Just Right
-char2KeyPress _   = Still
+IsViMovement : (c : Char) -> Type
+IsViMovement c = Dec (ViMovement c)
 
-cannotGoLeft : ValidMovement L (MkPos 0 _) -> Void
-cannotGoLeft (LeftAvailable _) impossible
+isViMovement : (c : Char) -> Dec (ViMovement c)
+isViMovement c = isElem c validViMovements
 
-cannotGoUp : ValidMovement U (MkPos _ 0) -> Void
-cannotGoUp (UpAvailable _) impossible
-
-isValidMovement : (pos : Position x y) ->
-                  (movement : Movement) ->
-                  Dec (ValidMovement movement pos)
-isValidMovement (MkPos Z _) L = No cannotGoLeft
-isValidMovement pos@(MkPos (S x) _) L = Yes (LeftAvailable pos)
-isValidMovement (MkPos _ Z) U = No cannotGoUp
-isValidMovement pos@(MkPos _ (S k)) U = Yes (UpAvailable pos)
-isValidMovement (MkPos _ _) R = ?isValidMovement_rhs_1
-isValidMovement (MkPos _ _) Still = ?isValidMovement_rhs_2
-
-
+fromChar : (c : Char) -> { auto prf : IsViMovement c } -> Movement
+fromChar 'h' = L
+fromChar 'j' = D
+fromChar 'k' = U
+fromChar _   = R
