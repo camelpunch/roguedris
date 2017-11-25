@@ -20,7 +20,8 @@ drawCharacter (MkCharacter hp coords symbol) board = replacePos coords symbol bo
 
 export
 populate : GameState -> Board
-populate (MkGameState player _) = drawCharacter player emptyBoard
+populate state
+  = foldr drawCharacter emptyBoard (player state :: mobs state)
 
 -- Local Variables:
 -- idris-load-packages: ("contrib")
