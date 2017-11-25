@@ -31,8 +31,8 @@ game state = do
   (c ** _) <- getValidKeyPress
   mvaddstr (MkPoint 0 1) $ "You pressed " ++ show c
   (case nextTurn c state of
-        state'@(MkGameState (MkPlayerState Z coords)) => pure $ Lost state'
-        state'@(MkGameState (MkPlayerState (S k) coords)) => game state')
+        state'@(MkGameState (MkPlayerState Z _)) => pure $ Lost state'
+        state'@(MkGameState (MkPlayerState (S k) _)) => game state')
 
 main : IO ()
 main = do

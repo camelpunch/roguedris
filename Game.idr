@@ -51,7 +51,7 @@ ViMovement c = Elem c validViMovements
 IsViMovement : Char -> Type
 IsViMovement = Dec . ViMovement
 
-isViMovement : (c : Char) -> Dec (ViMovement c)
+isViMovement : (c : Char) -> IsViMovement c
 isViMovement c = isElem c validViMovements
 
 fromChar : (c : Char) -> { auto prf : IsViMovement c } -> Movement
@@ -71,4 +71,4 @@ nextTurn : (c : Char) ->
            { auto prf : IsViMovement c } ->
            GameState
 nextTurn c gs@(MkGameState (MkPlayerState Z coords)) = gs
-nextTurn c (MkGameState ps@(MkPlayerState (S k) coords)) = MkGameState $ move (fromChar c) ps
+nextTurn c (MkGameState ps@(MkPlayerState (S k) coords)) = MkGameState (move (fromChar c) ps)
