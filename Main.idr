@@ -19,17 +19,20 @@ renderLine line = do
   traverse_ addch line
   addch '\n'
 
+showPlayerState : PlayerState -> String
+showPlayerState ps
+  = "Your health: " ++ show (hp ps) ++ " Your coords: " ++ show (coords ps) ++ " "
+
 game : GameState -> IO Finished
-game state@(MkGameState (MkPlayerState hp coords)) = do
-  mvaddstr (MkPoint 0 0) $ "Your health: " ++ show hp ++ " Your coords: " ++ show coords ++ " "
+game state = do
+  mvaddstr (MkPoint 0 0) $ showPlayerState (player state)
   move (MkPoint 0 2)
   traverse_ renderLine (populate state)
   (c ** _) <- getValidKeyPress
   mvaddstr (MkPoint 0 1) $ "You pressed " ++ show c
-  let state' = nextTurn c state
-  (case state' of
-        (MkGameState (MkPlayerState Z coords)) => pure $ Lost state'
-        (MkGameState (MkPlayerState (S k) coords)) => game state')
+  (case nextTurn c state of
+        state'@(MkGameState (MkPlayerState Z coords)) => pure $ Lost state'
+        state'@(MkGameState (MkPlayerState (S k) coords)) => game state')
 
 main : IO ()
 main = do
