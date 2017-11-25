@@ -19,17 +19,17 @@ renderLine line = do
   traverse_ addch line
   addch '\n'
 
-game : PlayerState -> IO Finished
-game state@(MkPlayerState hp coords) = do
+game : GameState -> IO Finished
+game state@(MkGameState (MkPlayerState hp coords)) = do
   mvaddstr (MkPoint 0 0) $ "Your health: " ++ show hp ++ " Your coords: " ++ show coords ++ " "
   move (MkPoint 0 2)
   traverse_ renderLine (populate state)
   (c ** _) <- getValidKeyPress
   mvaddstr (MkPoint 0 1) $ "You pressed " ++ show c
   let state' = nextTurn c state
-  case state' of
-       (MkPlayerState Z coords) => pure $ Lost state'
-       (MkPlayerState (S k) coords) => game state'
+  (case state' of
+        (MkGameState (MkPlayerState Z coords)) => pure $ Lost state'
+        (MkGameState (MkPlayerState (S k) coords)) => game state')
 
 main : IO ()
 main = do
@@ -37,7 +37,7 @@ main = do
   timeout (-1)
   noecho
   curs_set 0
-  result <- game (MkPlayerState 10 (MkPos 10 10))
+  result <- game (MkGameState $ MkPlayerState 10 (MkPos 10 10))
   mvaddstr (MkPoint 0 2) "You are dead."
   refresh
   usleep 1000000

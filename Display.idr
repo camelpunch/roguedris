@@ -10,8 +10,8 @@ emptyBoard : Board
 emptyBoard = replicate _ $ replicate _ '.'
 
 export
-populate : PlayerState -> Board
-populate (MkPlayerState hp (MkPos x y))
+populate : GameState -> Board
+populate (MkGameState (MkPlayerState hp (MkPos x y)))
   = let oldRow = getRow y emptyBoard
         newRow = replaceAt x '@' oldRow
     in  replaceAt y newRow emptyBoard

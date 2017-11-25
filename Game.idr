@@ -33,12 +33,12 @@ record PlayerState where
   hp : Nat
   coords : Position
 
-Show PlayerState where
-  show (MkPlayerState hp coords)
-    = "HP: " ++ show hp ++ " -- coords: " ++ show coords
+record GameState where
+  constructor MkGameState
+  player : PlayerState
 
 data Finished : Type where
-  Lost : (game : PlayerState) -> Finished
+  Lost : (game : GameState) -> Finished
 
 data Movement = L | D | U | R
 
@@ -67,8 +67,8 @@ move U = record { coords->y $= pred }
 move R = record { coords->x $= succ }
 
 nextTurn : (c : Char) ->
-           (ps : PlayerState) ->
+           (gs : GameState) ->
            { auto prf : IsViMovement c } ->
-           PlayerState
-nextTurn c ps@(MkPlayerState Z coords) = ps
-nextTurn c ps@(MkPlayerState (S k) coords) = move (fromChar c) ps
+           GameState
+nextTurn c gs@(MkGameState (MkPlayerState Z coords)) = gs
+nextTurn c (MkGameState ps@(MkPlayerState (S k) coords)) = MkGameState $ move (fromChar c) ps
