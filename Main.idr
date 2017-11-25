@@ -31,8 +31,15 @@ game state = do
   (c ** _) <- getValidKeyPress
   mvaddstr (MkPoint 0 1) $ "You pressed " ++ show c
   (case advance c state of
-        next_turn@(MkGameState (MkCharacter Z _) _) => pure $ Lost next_turn
-        next_turn@(MkGameState (MkCharacter (S k) _) _) => game next_turn)
+        next_turn@(MkGameState (MkCharacter Z _ _) _) => pure $ Lost next_turn
+        next_turn@(MkGameState (MkCharacter (S k) _ _) _) => game next_turn)
+
+newGame : GameState
+newGame
+  = MkGameState
+    (MkCharacter 10 (MkPos 10 10) '@')
+    [ (MkCharacter 10 (MkPos 5 5) 'J')
+    ]
 
 main : IO ()
 main = do
@@ -40,7 +47,7 @@ main = do
   timeout (-1)
   noecho
   curs_set 0
-  result <- game (MkGameState (MkCharacter 10 (MkPos 10 10)) [])
+  result <- game newGame
   mvaddstr (MkPoint 0 2) "You are dead."
   refresh
   usleep 1000000

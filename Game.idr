@@ -32,6 +32,7 @@ record Character where
   constructor MkCharacter
   hp : Nat
   coords : Position
+  symbol : Char
 
 record GameState where
   constructor MkGameState
@@ -71,5 +72,4 @@ advance : (c : Char) ->
           (gs : GameState) ->
           { auto prf : IsViMovement c } ->
           GameState
-advance c gs@(MkGameState (MkCharacter Z _) _) = gs
 advance c state = record { player $= move (fromChar c) } state

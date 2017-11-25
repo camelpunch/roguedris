@@ -16,7 +16,7 @@ replacePos (MkPos x y) c board
     in  replaceAt y newRow board
 
 drawCharacter : Character -> Board -> Board
-drawCharacter (MkCharacter hp coords) board = replacePos coords '@' board
+drawCharacter (MkCharacter hp coords symbol) board = replacePos coords symbol board
 
 export
 populate : GameState -> Board
