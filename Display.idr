@@ -9,12 +9,18 @@ Board = Matrix Game.height Game.width Char
 emptyBoard : Board
 emptyBoard = replicate _ (replicate _ '.')
 
+replacePos : Position -> Char -> Board -> Board
+replacePos (MkPos x y) c board
+  = let oldRow = getRow y board
+        newRow = replaceAt x c oldRow
+    in  replaceAt y newRow board
+
+drawCharacter : Character -> Board -> Board
+drawCharacter (MkCharacter hp coords) board = replacePos coords '@' board
+
 export
 populate : GameState -> Board
-populate (MkGameState (MkCharacter hp (MkPos x y)) _)
-  = let oldRow = getRow y emptyBoard
-        newRow = replaceAt x '@' oldRow
-    in  replaceAt y newRow emptyBoard
+populate (MkGameState player _) = drawCharacter player emptyBoard
 
 -- Local Variables:
 -- idris-load-packages: ("contrib")
