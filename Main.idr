@@ -5,6 +5,7 @@ import Data.Vect
 
 import NCurses
 import Game
+import Display
 
 getValidKeyPress : IO (c ** ViMovement c)
 getValidKeyPress = do
@@ -13,9 +14,16 @@ getValidKeyPress = do
         (Yes prf) => pure (_ ** prf)
         (No contra) => getValidKeyPress)
 
+renderLine : Vect Game.width Char -> IO ()
+renderLine line = do
+  traverse_ addch line
+  addch '\n'
+
 game : PlayerState -> IO Finished
 game state@(MkPlayerState hp coords) = do
   mvaddstr (MkPoint 0 0) $ "Your health: " ++ show hp ++ " Your coords: " ++ show coords ++ " "
+  move (MkPoint 0 2)
+  traverse_ renderLine (populate state)
   (c ** _) <- getValidKeyPress
   mvaddstr (MkPoint 0 1) $ "You pressed " ++ show c
   let state' = nextTurn c state
@@ -35,3 +43,7 @@ main = do
   usleep 1000000
   endwin
   exit 0
+
+-- Local Variables:
+-- idris-load-packages: ("contrib")
+-- End:

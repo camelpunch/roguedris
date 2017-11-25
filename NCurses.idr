@@ -10,11 +10,23 @@ public export
 data Point : Type where
   MkPoint : (x :  Nat) -> (y : Nat) -> Point
 
+addch : Char -> IO ()
+addch c
+  = foreign FFI_C "addch"
+    (Char -> IO ())
+    c
+
 addstr : String -> IO ()
 addstr s
   = foreign FFI_C "addstr"
    (String -> IO ())
     s
+
+move : Point -> IO Int
+move (MkPoint x y)
+  = foreign FFI_C "move"
+    (Int -> Int -> IO Int)
+    (fromNat y) (fromNat x)
 
 mvaddstr : Point -> String -> IO Int
 mvaddstr (MkPoint x y) s

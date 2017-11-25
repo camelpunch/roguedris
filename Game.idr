@@ -5,11 +5,17 @@ import Data.Vect
 %default total
 %access public export
 
+width : Nat
+width = 20
+
+height : Nat
+height = 15
+
 GameX : Type
-GameX = Fin 20
+GameX = Fin width
 
 GameY : Type
-GameY = Fin 15
+GameY = Fin height
 
 Show (Fin a) where
   show n = show $ finToNat n

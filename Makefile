@@ -3,8 +3,9 @@
 
 all:
 	idris \
-	--output roguedris \
-	Main.idr
+		--package contrib \
+		--output roguedris \
+		Main.idr
 
 play: all
 	./roguedris
