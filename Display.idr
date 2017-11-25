@@ -7,7 +7,7 @@ Board : Type
 Board = Matrix Game.height Game.width Char
 
 emptyBoard : Board
-emptyBoard = replicate _ $ replicate _ '.'
+emptyBoard = replicate _ (replicate _ '.')
 
 export
 populate : GameState -> Board
