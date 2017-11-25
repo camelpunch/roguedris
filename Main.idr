@@ -30,9 +30,9 @@ game state = do
   traverse_ renderLine (populate state)
   (c ** _) <- getValidKeyPress
   mvaddstr (MkPoint 0 1) $ "You pressed " ++ show c
-  (case nextTurn c state of
-        state'@(MkGameState (MkCharacter Z _) _) => pure $ Lost state'
-        state'@(MkGameState (MkCharacter (S k) _) _) => game state')
+  (case advance c state of
+        next_turn@(MkGameState (MkCharacter Z _) _) => pure $ Lost next_turn
+        next_turn@(MkGameState (MkCharacter (S k) _) _) => game next_turn)
 
 main : IO ()
 main = do

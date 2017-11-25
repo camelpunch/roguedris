@@ -67,9 +67,9 @@ move D = record { coords->y $= succ }
 move U = record { coords->y $= pred }
 move R = record { coords->x $= succ }
 
-nextTurn : (c : Char) ->
-           (gs : GameState) ->
-           { auto prf : IsViMovement c } ->
-           GameState
-nextTurn c gs@(MkGameState (MkCharacter Z _) _) = gs
-nextTurn c state = record { player $= move (fromChar c) } state
+advance : (c : Char) ->
+          (gs : GameState) ->
+          { auto prf : IsViMovement c } ->
+          GameState
+advance c gs@(MkGameState (MkCharacter Z _) _) = gs
+advance c state = record { player $= move (fromChar c) } state
