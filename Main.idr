@@ -6,19 +6,6 @@ import Data.Vect
 import NCurses
 import Game
 
-move : Movement -> PlayerState -> PlayerState
-move L = record { coords->x $= pred }
-move D = record { coords->y $= succ }
-move U = record { coords->y $= pred }
-move R = record { coords->x $= succ }
-
-nextTurn : (c : Char) ->
-           (ps : PlayerState) ->
-           { auto prf : IsViMovement c } ->
-           PlayerState
-nextTurn c ps@(MkPlayerState Z coords) = ps
-nextTurn c ps@(MkPlayerState (S k) coords) = move (fromChar c) ps
-
 getValidKeyPress : IO (c ** ViMovement c)
 getValidKeyPress = do
   chr <- getch
