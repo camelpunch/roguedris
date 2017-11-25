@@ -18,7 +18,7 @@ GameY : Type
 GameY = Fin height
 
 Show (Fin a) where
-  show n = show $ finToNat n
+  show = show . finToNat
 
 record Position where
   constructor MkPos
@@ -48,8 +48,8 @@ validViMovements = ['h', 'j', 'k', 'l']
 ViMovement : (c : Char) -> Type
 ViMovement c = Elem c validViMovements
 
-IsViMovement : (c : Char) -> Type
-IsViMovement c = Dec (ViMovement c)
+IsViMovement : Char -> Type
+IsViMovement = Dec . ViMovement
 
 isViMovement : (c : Char) -> Dec (ViMovement c)
 isViMovement c = isElem c validViMovements
