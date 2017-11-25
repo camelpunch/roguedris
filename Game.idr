@@ -28,14 +28,14 @@ record Position where
 Show Position where
   show (MkPos x y) = show x ++ "x" ++ show y
 
-record PlayerState where
-  constructor MkPlayerState
+record Character where
+  constructor MkCharacter
   hp : Nat
   coords : Position
 
 record GameState where
   constructor MkGameState
-  player : PlayerState
+  player : Character
 
 data Finished : Type where
   Lost : (game : GameState) -> Finished
@@ -60,7 +60,7 @@ fromChar 'j' = D
 fromChar 'k' = U
 fromChar _   = R
 
-move : Movement -> PlayerState -> PlayerState
+move : Movement -> Character -> Character
 move L = record { coords->x $= pred }
 move D = record { coords->y $= succ }
 move U = record { coords->y $= pred }
@@ -70,5 +70,5 @@ nextTurn : (c : Char) ->
            (gs : GameState) ->
            { auto prf : IsViMovement c } ->
            GameState
-nextTurn c gs@(MkGameState (MkPlayerState Z coords)) = gs
-nextTurn c (MkGameState ps@(MkPlayerState (S k) coords)) = MkGameState (move (fromChar c) ps)
+nextTurn c gs@(MkGameState (MkCharacter Z _)) = gs
+nextTurn c (MkGameState ps@(MkCharacter (S k) _)) = MkGameState (move (fromChar c) ps)
