@@ -36,6 +36,7 @@ record Character where
 record GameState where
   constructor MkGameState
   player : Character
+  mobs : List Character
 
 data Finished : Type where
   Lost : (game : GameState) -> Finished
@@ -70,5 +71,5 @@ nextTurn : (c : Char) ->
            (gs : GameState) ->
            { auto prf : IsViMovement c } ->
            GameState
-nextTurn c gs@(MkGameState (MkCharacter Z _)) = gs
-nextTurn c (MkGameState ps@(MkCharacter (S k) _)) = MkGameState (move (fromChar c) ps)
+nextTurn c gs@(MkGameState (MkCharacter Z _) _) = gs
+nextTurn c state = record { player $= move (fromChar c) } state
