@@ -5,7 +5,7 @@ import Data.Vect
 
 import NCurses
 import Game
-import Display
+import Board
 
 getValidKeyPress : IO (c ** ViMovement c)
 getValidKeyPress = do
@@ -14,9 +14,13 @@ getValidKeyPress = do
         (Yes prf) => pure (_ ** prf)
         (No contra) => getValidKeyPress)
 
-renderLine : Vect Game.width Char -> IO ()
+addchTile : Tile -> IO ()
+addchTile Empty = addch '.'
+addchTile (Occupied c) = addch (symbol c)
+
+renderLine : Vect Game.width Tile -> IO ()
 renderLine line = do
-  traverse_ addch line
+  traverse_ addchTile line
   addch '\n'
 
 showPlayerState : Character -> String
