@@ -2,7 +2,9 @@ module Board
 
 import Data.Matrix
 
+import Config
 import Game
+import Position
 
 public export
 data Tile : Type where
@@ -11,7 +13,7 @@ data Tile : Type where
 
 public export
 Board : Type
-Board = Matrix Game.height Game.width Tile
+Board = Matrix height width Tile
 
 emptyBoard : Board
 emptyBoard = replicate _ (replicate _ Empty)

@@ -1,12 +1,14 @@
 module Main
 
-import System
 import Data.Vect
+import System
 
-import NCurses
-import Game
+import Config
 import Board
 import Display
+import Game
+import NCurses
+import Position
 
 getValidKeyPress : IO (c ** ViMovement c)
 getValidKeyPress = do
@@ -15,14 +17,14 @@ getValidKeyPress = do
         (Yes prf) => pure (_ ** prf)
         (No contra) => getValidKeyPress)
 
-renderLine : Vect Game.width Tile -> IO ()
+renderLine : Vect Config.width Tile -> IO ()
 renderLine line = do
   traverse_ (addch . symbol) line
   addch '\n'
 
 showPlayerState : Character -> String
-showPlayerState ps
-  = "Your health: " ++ show (hp ps) ++ " Your coords: " ++ show (coords ps) ++ " "
+showPlayerState c
+  = "Your health: " ++ show (hp c) ++ " Your coords: " ++ show (coords c) ++ " "
 
 game : GameState -> IO Finished
 game state = do
