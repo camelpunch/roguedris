@@ -30,29 +30,31 @@ Show Position where
 
 xCoordsDiffer : {x : GameX} ->
                 (contra : (x = x') -> Void) ->
-                (MkPos x _ = MkPos x' _) -> Void
+                (MkPos x _ = MkPos x' _) ->
+                Void
 xCoordsDiffer contra Refl = contra Refl
 
 yCoordsDiffer : {x : GameX} ->
                 {y : GameY} ->
                 (prf : x = x') ->
                 (contra : (y = y') -> Void) ->
-                (MkPos x y = MkPos x' y') -> Void
+                (MkPos x y = MkPos x' y') ->
+                Void
 yCoordsDiffer Refl contra Refl = contra Refl
 
 xAndYCoordsMatch : {x : GameX} ->
                    {y : GameY} ->
-                   (prf : x = z) ->
-                   (prf' : y = w) ->
-                   Dec (MkPos x y = MkPos z w)
+                   (prfX : x = x') ->
+                   (prfY : y = y') ->
+                   Dec (MkPos x y = MkPos x' y')
 xAndYCoordsMatch Refl Refl = Yes Refl
 
 DecEq Position where
   decEq (MkPos x y) (MkPos x' y')
     = case decEq x x' of
-           (Yes prf) => (case decEq y y' of
-                              (Yes prf') => xAndYCoordsMatch prf prf'
-                              (No contra) => No (yCoordsDiffer prf contra))
+           (Yes prfX) => (case decEq y y' of
+                              (Yes prfY) => xAndYCoordsMatch prfX prfY
+                              (No contra) => No (yCoordsDiffer prfX contra))
            (No contra) => No (xCoordsDiffer contra)
 
 record Character where
