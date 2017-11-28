@@ -28,6 +28,33 @@ record Position where
 Show Position where
   show (MkPos x y) = show x ++ "x" ++ show y
 
+xCoordsDiffer : {x : GameX} ->
+                (contra : (x = x') -> Void) ->
+                (MkPos x _ = MkPos x' _) -> Void
+xCoordsDiffer contra Refl = contra Refl
+
+yCoordsDiffer : {x : GameX} ->
+                {y : GameY} ->
+                (prf : x = x') ->
+                (contra : (y = y') -> Void) ->
+                (MkPos x y = MkPos x' y') -> Void
+yCoordsDiffer Refl contra Refl = contra Refl
+
+xAndYCoordsMatch : {x : GameX} ->
+                   {y : GameY} ->
+                   (prf : x = z) ->
+                   (prf' : y = w) ->
+                   Dec (MkPos x y = MkPos z w)
+xAndYCoordsMatch Refl Refl = Yes Refl
+
+DecEq Position where
+  decEq (MkPos x y) (MkPos x' y')
+    = case decEq x x' of
+           (Yes prf) => (case decEq y y' of
+                              (Yes prf') => xAndYCoordsMatch prf prf'
+                              (No contra) => No (yCoordsDiffer prf contra))
+           (No contra) => No (xCoordsDiffer contra)
+
 record Character where
   constructor MkCharacter
   hp : Nat
@@ -37,7 +64,7 @@ record Character where
 record GameState where
   constructor MkGameState
   player : Character
-  mobs : List Character
+  mobs : Vect n Character
 
 data Finished : Type where
   Lost : (game : GameState) -> Finished
@@ -56,11 +83,11 @@ IsViMovement = Dec . ViMovement
 isViMovement : (c : Char) -> IsViMovement c
 isViMovement c = isElem c validViMovements
 
-fromChar : (c : Char) -> { auto prf : IsViMovement c } -> Movement
-fromChar 'h' = L
-fromChar 'j' = D
-fromChar 'k' = U
-fromChar _   = R
+char2Movement : (c : Char) -> { auto prf : IsViMovement c } -> Movement
+char2Movement 'h' = L
+char2Movement 'j' = D
+char2Movement 'k' = U
+char2Movement _   = R
 
 move : Movement -> Character -> Character
 move L = record { coords->x $= pred }
@@ -72,4 +99,8 @@ advance : (c : Char) ->
           (gs : GameState) ->
           { auto prf : IsViMovement c } ->
           GameState
-advance c state = record { player $= move (fromChar c) } state
+advance c state
+  = let candidate = coords (move (char2Movement c) (player state))
+    in case isElem candidate (map coords (mobs state)) of
+         (Yes prf) => state
+         (No contra) => record { player $= move (char2Movement c) } state
