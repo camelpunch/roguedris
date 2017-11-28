@@ -20,37 +20,27 @@ record GameState where
   mobs : Vect n Character
 
 data Finished : Type where
-  Lost : (game : GameState) -> Finished
+  Lost : GameState -> Finished
 
-data Movement = L | D | U | R
+data Command = MoveLeft | MoveDown | MoveUp | MoveRight
 
-validViMovements : Vect 4 Char
-validViMovements = ['h', 'j', 'k', 'l']
+keyMap : Vect 4 (Char, Command)
+keyMap = [ ('h', MoveLeft)
+         , ('j', MoveDown)
+         , ('k', MoveUp)
+         , ('l', MoveRight)
+         ]
 
-ViMovement : (c : Char) -> Type
-ViMovement c = Elem c validViMovements
+process : Command -> GameState -> GameState
+process MoveLeft  = record { player->coords->x $= pred }
+process MoveDown  = record { player->coords->y $= succ }
+process MoveUp    = record { player->coords->y $= pred }
+process MoveRight = record { player->coords->x $= succ }
 
-isViMovement : (c : Char) -> Dec (ViMovement c)
-isViMovement c = isElem c validViMovements
-
-char2Movement : (c : Char) -> { auto prf : Dec (ViMovement c) } -> Movement
-char2Movement 'h' = L
-char2Movement 'j' = D
-char2Movement 'k' = U
-char2Movement _   = R
-
-move : Movement -> Character -> Character
-move L = record { coords->x $= pred }
-move D = record { coords->y $= succ }
-move U = record { coords->y $= pred }
-move R = record { coords->x $= succ }
-
-advance : (c : Char) ->
-          (gs : GameState) ->
-          { auto prf : Dec (ViMovement c) } ->
-          GameState
-advance c state
-  = let candidate = coords (move (char2Movement c) (player state))
-    in case isElem candidate (map coords (mobs state)) of
-         (Yes prf) => state
-         (No contra) => record { player $= move (char2Movement c) } state
+advance : Command -> GameState -> GameState
+advance command state
+  = let state' = process command state
+        obstacles = coords <$> mobs state
+    in case isElem (record { player->coords } state') obstacles of
+       (Yes prf) => state
+       (No contra) => state'

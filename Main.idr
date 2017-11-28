@@ -10,12 +10,13 @@ import Game
 import NCurses
 import Position
 
-getValidKeyPress : IO (c ** ViMovement c)
-getValidKeyPress = do
+getCommand : IO Command
+getCommand = do
   chr <- getch
-  (case isViMovement chr of
-        (Yes prf) => pure (_ ** prf)
-        (No contra) => getValidKeyPress)
+  mvaddstr (MkPoint 0 1) $ "You pressed " ++ show chr
+  (case lookup chr keyMap of
+        Nothing => getCommand
+        (Just x) => pure x)
 
 renderLine : Vect Config.width Tile -> IO ()
 renderLine line = do
@@ -31,11 +32,11 @@ game state = do
   mvaddstr (MkPoint 0 0) $ showPlayerState (player state)
   move (MkPoint 0 2)
   traverse_ renderLine (populate state)
-  (c ** _) <- getValidKeyPress
-  mvaddstr (MkPoint 0 1) $ "You pressed " ++ show c
-  (case advance c state of
-        next_turn@(MkGameState (MkCharacter Z _ _) _) => pure $ Lost next_turn
-        next_turn@(MkGameState (MkCharacter (S k) _ _) _) => game next_turn)
+  command <- getCommand
+  let state' = advance command state
+  (case record { player->hp } state' of
+        Z => pure $ Lost state'
+        (S k) => game state')
 
 newGame : GameState
 newGame
