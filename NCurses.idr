@@ -19,7 +19,7 @@ addch c
 addstr : String -> IO ()
 addstr s
   = foreign FFI_C "addstr"
-   (String -> IO ())
+    (String -> IO ())
     s
 
 move : Point -> IO Int
@@ -37,7 +37,7 @@ mvaddstr (MkPoint x y) s
 printw : String -> IO ()
 printw s
   = foreign FFI_C "printw"
-   (String -> IO ())
+    (String -> IO ())
     s
 
 refresh : IO Int
@@ -67,7 +67,7 @@ initscr = foreign FFI_C "initscr" (IO Int)
 timeout : Int -> IO ()
 timeout n = foreign FFI_C "timeout" (Int -> IO ()) n
 
-getch : IO (Char)
+getch : IO Char
 getch = foreign FFI_C "getch" (IO Char)
 
 endwin : IO Int
