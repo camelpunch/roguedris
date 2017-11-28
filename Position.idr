@@ -49,7 +49,7 @@ DecEq Position where
   decEq (MkPos x y) (MkPos x' y')
     = case decEq x x' of
            (Yes prfX) => (case decEq y y' of
-                              (Yes prfY) => xAndYCoordsMatch prfX prfY
-                              (No contra) => No (yCoordsDiffer prfX contra))
+                               (Yes prfY) => xAndYCoordsMatch prfX prfY
+                               (No contra) => No (yCoordsDiffer prfX contra))
            (No contra) => No (xCoordsDiffer contra)
 
