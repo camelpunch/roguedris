@@ -23,15 +23,22 @@ renderLine line = do
   traverse_ (addch . symbol) line
   addch '\n'
 
+renderMob : Character -> IO ()
+renderMob mob =
+  addstr $ show (symbol mob) ++ ": " ++ show (hp mob) ++ " "
+
 showPlayerState : Character -> String
 showPlayerState c
   = "Your health: " ++ show (hp c) ++ " Your coords: " ++ show (coords c) ++ " "
 
 game : GameState -> IO Finished
 game state = do
+  clear
   mvaddstr (MkPoint 0 0) $ showPlayerState (player state)
   move (MkPoint 0 2)
   traverse_ renderLine (populate state)
+  addstr "Mobs:\n"
+  traverse_ renderMob (mobs state)
   command <- getCommand
   let state' = advance command state
   (case decEq (record { player->hp } state') Z of
@@ -42,7 +49,8 @@ newGame : GameState
 newGame
   = MkGameState
     (MkCharacter 10 (MkPos 10 10) '@')
-    [ (MkCharacter 10 (MkPos 5 5) 'J')
+    [ MkCharacter 10 (MkPos 5 5) 'J'
+    , MkCharacter 10 (MkPos 7 7) 'S'
     ]
 
 main : IO ()

@@ -39,10 +39,27 @@ process MoveDown  = record { player->coords->y $= succ }
 process MoveUp    = record { player->coords->y $= pred }
 process MoveRight = record { player->coords->x $= succ }
 
+data FightResult = MkFightResult Character Character
+
+fight : (a : Character) -> (b : Character) -> { auto prf : (coords a) = (coords b) }  -> FightResult
+fight a (MkCharacter (S hp) coords symbol) = MkFightResult a (MkCharacter hp coords symbol)
+fight a b@(MkCharacter Z coords symbol) = MkFightResult a b
+
+processMob : (origCoords : Position) ->
+             (processed : (Character, List Character)) ->
+             (mob : Character) ->
+             (Character, List Character)
+processMob origCoords (player, retainedMobs) mob
+  = case decEq (coords player) (coords mob) of
+         (Yes prf) => case fight player mob of
+                           (MkFightResult newPlayer (MkCharacter Z coords symbol)) =>
+                             (newPlayer, retainedMobs)
+                           (MkFightResult newPlayer newMob@(MkCharacter (S k) coords symbol)) =>
+                             (record { coords = origCoords } newPlayer, retainedMobs ++ [newMob])
+         (No contra) => (player, retainedMobs ++ [mob])
+
 advance : Command -> GameState -> GameState
 advance command state
-  = let state' = process command state
-        obstacles = coords <$> mobs state
-    in case isElem (record { player->coords } state') obstacles of
-       (Yes prf) => state
-       (No contra) => state'
+  = let newState             = process command state
+        (newPlayer, newMobs) = foldl (processMob (record { player->coords } state)) (player newState, []) (mobs newState)
+    in  MkGameState newPlayer (fromList newMobs)
