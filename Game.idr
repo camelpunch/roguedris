@@ -41,9 +41,11 @@ process MoveRight = record { player->coords->x $= succ }
 
 data FightResult = MkFightResult Character Character
 
-fight : (a : Character) -> (b : Character) -> { auto prf : (coords a) = (coords b) }  -> FightResult
-fight a (MkCharacter (S hp) coords symbol) = MkFightResult a (MkCharacter hp coords symbol)
-fight a b@(MkCharacter Z coords symbol) = MkFightResult a b
+fight : (a : Character) ->
+        (b : Character) ->
+        { auto prf : coords a = coords b } ->
+        FightResult
+fight a b = MkFightResult a (record { hp $= pred } b)
 
 processMob : (origCoords : Position) ->
              (processed : (Character, List Character)) ->
@@ -51,15 +53,17 @@ processMob : (origCoords : Position) ->
              (Character, List Character)
 processMob origCoords (player, retainedMobs) mob
   = case decEq (coords player) (coords mob) of
-         (Yes prf) => case fight player mob of
-                           (MkFightResult newPlayer (MkCharacter Z coords symbol)) =>
-                             (newPlayer, retainedMobs)
-                           (MkFightResult newPlayer newMob@(MkCharacter (S k) coords symbol)) =>
-                             (record { coords = origCoords } newPlayer, retainedMobs ++ [newMob])
-         (No contra) => (player, retainedMobs ++ [mob])
+         Yes prf => case fight player mob of
+                         MkFightResult newPlayer (MkCharacter Z _ _) =>
+                           (newPlayer, retainedMobs)
+                         MkFightResult newPlayer newMob@(MkCharacter (S k) _ _) =>
+                           (record { coords = origCoords } newPlayer, retainedMobs ++ [newMob])
+         No contra => (player, retainedMobs ++ [mob])
 
 advance : Command -> GameState -> GameState
 advance command state
   = let newState             = process command state
-        (newPlayer, newMobs) = foldl (processMob (record { player->coords } state)) (player newState, []) (mobs newState)
+        (newPlayer, newMobs) = foldl (processMob (record { player->coords } state))
+                                     (player newState, [])
+                                     (mobs newState)
     in  MkGameState newPlayer (fromList newMobs)
