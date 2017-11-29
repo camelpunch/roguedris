@@ -34,9 +34,9 @@ game state = do
   traverse_ renderLine (populate state)
   command <- getCommand
   let state' = advance command state
-  (case record { player->hp } state' of
-        Z => pure $ Lost state'
-        (S k) => game state')
+  (case decEq (record { player->hp } state') Z of
+        (Yes prf) => pure $ Lost state'
+        (No contra) => game state')
 
 newGame : GameState
 newGame

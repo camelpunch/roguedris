@@ -20,7 +20,9 @@ record GameState where
   mobs : Vect n Character
 
 data Finished : Type where
-  Lost : GameState -> Finished
+  Lost : (state : GameState) ->
+         { auto prf : record { player->hp } state = Z } ->
+         Finished
 
 data Command = MoveLeft | MoveDown | MoveUp | MoveRight
 
