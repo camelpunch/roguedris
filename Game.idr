@@ -33,11 +33,11 @@ keyMap = [ ('h', MoveLeft)
          , ('l', MoveRight)
          ]
 
-process : Command -> GameState -> GameState
-process MoveLeft  = record { player->coords->x $= pred }
-process MoveDown  = record { player->coords->y $= succ }
-process MoveUp    = record { player->coords->y $= pred }
-process MoveRight = record { player->coords->x $= succ }
+playerMoveProposal : Command -> GameState -> GameState
+playerMoveProposal MoveLeft  = record { player->coords->x $= pred }
+playerMoveProposal MoveDown  = record { player->coords->y $= succ }
+playerMoveProposal MoveUp    = record { player->coords->y $= pred }
+playerMoveProposal MoveRight = record { player->coords->x $= succ }
 
 data FightResult = MkFightResult Character Character
 
@@ -62,7 +62,7 @@ processMob origCoords (player, retainedMobs) mob
 
 advance : Command -> GameState -> GameState
 advance command state
-  = let newState             = process command state
+  = let newState             = playerMoveProposal command state
         (newPlayer, newMobs) = foldl (processMob (record { player->coords } state))
                                      (player newState, [])
                                      (mobs newState)

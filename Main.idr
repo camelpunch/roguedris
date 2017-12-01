@@ -40,10 +40,10 @@ game state = do
   addstr "Mobs:\n"
   traverse_ renderMob (mobs state)
   command <- getCommand
-  let state' = advance command state
-  (case decEq (record { player->hp } state') Z of
-        (Yes prf) => pure $ Lost state'
-        (No contra) => game state')
+  let newState = advance command state
+  case decEq (record { player->hp } newState) Z of
+    Yes prf => pure $ Lost newState
+    No contra => game newState
 
 newGame : GameState
 newGame
