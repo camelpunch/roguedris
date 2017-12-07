@@ -48,9 +48,9 @@ game state = do
 newGame : GameState
 newGame
   = MkGameState
-    (MkCharacter 10 (MkPos 10 10) '@')
-    [ MkCharacter 10 (MkPos 5 5) 'J'
-    , MkCharacter 10 (MkPos 7 7) 'S'
+    (MkCharacter 10 (MkPos 10 10) '@' [2])
+    [ MkCharacter 10 (MkPos 5 5) 'J' [0]
+    , MkCharacter 10 (MkPos 7 7) 'S' [0]
     ]
 
 main : IO ()

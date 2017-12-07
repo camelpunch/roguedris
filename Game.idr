@@ -13,6 +13,7 @@ record Character where
   hp : Nat
   coords : Position
   symbol : Char
+  attackPoints : List Nat
 
 record GameState where
   constructor MkGameState
@@ -45,7 +46,10 @@ fight : (a : Character) ->
         (b : Character) ->
         { auto prf : coords a = coords b } ->
         FightResult
-fight a b = MkFightResult a (record { hp $= pred } b)
+fight a b
+  = case (attackPoints a) of
+         []                 => MkFightResult a b
+         (damage :: points) => MkFightResult a ( record { hp = hp b `minus` damage } b)
 
 processMob : (origCoords : Position) ->
              (processed : (Character, List Character)) ->
@@ -54,9 +58,9 @@ processMob : (origCoords : Position) ->
 processMob origCoords (player, retainedMobs) mob
   = case decEq (coords player) (coords mob) of
          Yes prf => case fight player mob of
-                         MkFightResult newPlayer (MkCharacter Z _ _) =>
+                         MkFightResult newPlayer (MkCharacter Z _ _ _) =>
                            (newPlayer, retainedMobs)
-                         MkFightResult newPlayer newMob@(MkCharacter (S k) _ _) =>
+                         MkFightResult newPlayer newMob@(MkCharacter (S k) _ _ _) =>
                            (record { coords = origCoords } newPlayer, retainedMobs ++ [newMob])
          No contra => (player, retainedMobs ++ [mob])
 
