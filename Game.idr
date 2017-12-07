@@ -49,7 +49,7 @@ fight : (a : Character) ->
 fight a b
   = case (attackPoints a) of
          []                 => MkFightResult a b
-         (damage :: points) => MkFightResult a ( record { hp = hp b `minus` damage } b)
+         (damage :: points) => MkFightResult a ( record { hp $= (`minus` damage) } b)
 
 processMob : (origCoords : Position) ->
              (processed : (Character, List Character)) ->
