@@ -47,9 +47,12 @@ fight : (a : Character) ->
         { auto prf : coords a = coords b } ->
         FightResult
 fight a b
-  = case (attackPoints a) of
-         []                 => MkFightResult a b
-         (damage :: points) => MkFightResult a ( record { hp $= (`minus` damage) } b)
+  = case attackPoints a of
+         [] =>
+           MkFightResult a b
+         (damage :: points) =>
+           MkFightResult (record { attackPoints = points ++ [damage] } a)
+                         (record { hp $= (`minus` damage)            } b)
 
 processMob : (origCoords : Position) ->
              (processed : (Character, List Character)) ->
