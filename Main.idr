@@ -15,9 +15,9 @@ getCommand : IO Command
 getCommand = do
   chr <- getch
   mvaddstr (MkPoint 0 1) $ "You pressed " ++ show chr
-  (case lookup chr keyMap of
-        Nothing => getCommand
-        (Just x) => pure x)
+  case lookup chr keyMap of
+    Nothing => getCommand
+    Just x => pure x
 
 renderLine : Vect Config.width Tile -> IO ()
 renderLine line = do
