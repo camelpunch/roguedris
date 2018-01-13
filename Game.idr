@@ -13,7 +13,7 @@ record Character where
   hp : Nat
   coords : Position
   symbol : Char
-  attackPoints : List Nat
+  attackPoints : Stream (Fin 12)
 
 record GameState where
   constructor MkGameState
@@ -48,11 +48,10 @@ fight : (a : Character) ->
         FightResult
 fight a b
   = case attackPoints a of
-         [] =>
-           MkFightResult a b
-         (damage :: points) =>
-           MkFightResult (record { attackPoints = points ++ [damage] } a)
-                         (record { hp $= (`minus` damage)            } b)
+         (damage :: futurePoints) =>
+           MkFightResult
+             (record { attackPoints = futurePoints } a)
+             (record { hp $= (`minus` (finToNat damage)) } b)
 
 processMob : (origCoords : Position) ->
              (processed : (Character, List Character)) ->

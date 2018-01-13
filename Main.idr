@@ -3,12 +3,13 @@ module Main
 import Data.Vect
 import System
 
-import Config
 import Board
+import Config
 import Display
 import Game
 import NCurses
 import Position
+import Random
 
 getCommand : IO Command
 getCommand = do
@@ -45,12 +46,12 @@ game state = do
     Yes prf => pure $ Lost newState
     No contra => game newState
 
-newGame : GameState
-newGame
+newGame : Stream (Fin 12) -> GameState
+newGame nums
   = MkGameState
-    (MkCharacter 10 (MkPos 10 10) '@' [2, 1, 3])
-    [ MkCharacter 10 (MkPos 5 5) 'J' [0]
-    , MkCharacter 10 (MkPos 7 7) 'S' [0]
+    ( MkCharacter 10 (MkPos 10 10) '@' nums )
+    [ MkCharacter 10 (MkPos  5  5) 'J' nums
+    , MkCharacter 10 (MkPos  7  7) 'S' nums
     ]
 
 main : IO ()
@@ -59,7 +60,7 @@ main = do
   timeout (-1)
   noecho
   curs_set 0
-  result <- game newGame
+  result <- game (newGame (diceRolls (fromInteger !time)))
   mvaddstr (MkPoint 0 2) "You are dead."
   refresh
   usleep 1000000
