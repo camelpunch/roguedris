@@ -42,29 +42,51 @@ playerMoveProposal MoveRight = record { player->coords->x $= succ }
 
 data FightResult = MkFightResult Character Character
 
-fight : (a : Character) ->
-        (b : Character) ->
-        { auto prf : coords a = coords b } ->
+fight : (c1 : Character) ->
+        (c2 : Character) ->
+        {auto prf : coords c1 = coords c2} ->
         FightResult
-fight a b
-  = case attackPoints a of
+fight c1 c2
+  = case attackPoints c1 of
          (damage :: futurePoints) =>
            MkFightResult
-             (record { attackPoints = futurePoints } a)
-             (record { hp $= (`minus` (finToNat damage)) } b)
+             (record { attackPoints = futurePoints } c1)
+             (record { hp $= (`minus` (finToNat damage)) } c2)
 
-processMob : (origCoords : Position) ->
+data SpatialRelationship : Character -> Character -> Type where
+  Colocated : {auto prf : coords c1 = coords c2} ->
+              SpatialRelationship c1 c2
+  Distant : {prf : coords c1 = coords c2 -> Void} ->
+            SpatialRelationship c1 c2
+
+spatialRelationship : (c1 : Character) ->
+                      (c2 : Character) ->
+                      SpatialRelationship c1 c2
+spatialRelationship c1 c2
+  = case decEq (coords c1) (coords c2) of
+         Yes _ => Colocated
+         No contra => Distant {prf=contra}
+
+processMob : (startPosition : Position) ->
              (processed : (Character, List Character)) ->
              (mob : Character) ->
              (Character, List Character)
-processMob origCoords (player, retainedMobs) mob
-  = case decEq (coords player) (coords mob) of
-         Yes prf => case fight player mob of
-                         MkFightResult newPlayer (MkCharacter Z _ _ _) =>
-                           (newPlayer, retainedMobs)
-                         MkFightResult newPlayer newMob@(MkCharacter (S k) _ _ _) =>
-                           (record { coords = origCoords } newPlayer, retainedMobs ++ [newMob])
-         No contra => (player, retainedMobs ++ [mob])
+processMob startPosition (player, mobs) mob
+  = case spatialRelationship player mob of
+         Colocated =>
+           case fight player mob of
+                MkFightResult newPlayer (MkCharacter Z _ _ _) =>
+                  ( newPlayer
+                  , mobs
+                  )
+                MkFightResult newPlayer stillAliveMob@(MkCharacter (S k) _ _ _) =>
+                  ( record { coords = startPosition } newPlayer
+                  , mobs ++ [stillAliveMob]
+                  )
+         Distant =>
+           ( player
+           , mobs ++ [mob]
+           )
 
 advance : Command -> GameState -> GameState
 advance command state
