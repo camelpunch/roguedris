@@ -56,8 +56,8 @@ fight c1 c2
 data SpatialRelationship : Character -> Character -> Type where
   Colocated : {auto prf : coords c1 = coords c2} ->
               SpatialRelationship c1 c2
-  Distant : {prf : coords c1 = coords c2 -> Void} ->
-            SpatialRelationship c1 c2
+  Apart     : {prf : coords c1 = coords c2 -> Void} ->
+              SpatialRelationship c1 c2
 
 spatialRelationship : (c1 : Character) ->
                       (c2 : Character) ->
@@ -65,7 +65,7 @@ spatialRelationship : (c1 : Character) ->
 spatialRelationship c1 c2
   = case decEq (coords c1) (coords c2) of
          Yes _ => Colocated
-         No contra => Distant {prf=contra}
+         No contra => Apart {prf=contra}
 
 processMob : (startPosition : Position) ->
              (processed : (Character, List Character)) ->
