@@ -78,7 +78,7 @@ public export
 advance : Command -> GameState -> GameState
 advance command state
   = let newState             = playerMoveProposal command state
-        (newPlayer, newMobs) = foldl (processMob (record { player->coords } state))
+        (newPlayer, newMobs) = foldl (mobTurn (record { player->coords } state))
                                      (player newState, [])
                                      (mobs newState)
     in  MkGameState newPlayer (fromList newMobs)
@@ -89,23 +89,27 @@ advance command state
       playerMoveProposal MoveUp    = record { player->coords->y $= pred }
       playerMoveProposal MoveRight = record { player->coords->x $= succ }
 
-      processMob : (startPosition : Position) ->
-                   (processed : (Character, List Character)) ->
-                   (mob : Character) ->
-                   (Character, List Character)
-      processMob startPosition (player, mobs) mob
+      mobTurn : (playerStartPosition : Position) ->
+                (Character, List Character) ->
+                (mob : Character) ->
+                (Character, List Character)
+      mobTurn playerStartPosition (player, mobs) mob
         = case spatialRelationship player mob of
                Colocated =>
                  case fight player mob of
-                      MkFightResult newPlayer (MkCharacter Z _ _ _) =>
-                        ( newPlayer
-                        , mobs
-                        )
-                      MkFightResult newPlayer stillAliveMob@(MkCharacter (S k) _ _ _) =>
-                        ( record { coords = startPosition } newPlayer
-                        , mobs ++ [stillAliveMob]
-                        )
-               Apart =>
-                 ( player
-                 , mobs ++ [mob]
-                 )
+                      MkFightResult p (MkCharacter Z _ _ _) =>
+                        deadMob p
+                      MkFightResult p m@(MkCharacter (S k) _ _ _) =>
+                        aliveMob p m
+               Apart => (player, mobs ++ [mob])
+          where
+            deadMob : (newPlayer : Character) -> (Character, List Character)
+            deadMob p = (p, mobs)
+
+            revertPlayerPosition : Character -> Character
+            revertPlayerPosition = record { coords = playerStartPosition }
+
+            aliveMob : (newPlayer : Character) ->
+                       (newMob : Character) ->
+                       (Character, List Character)
+            aliveMob p m = (revertPlayerPosition p, mobs ++ [m])
