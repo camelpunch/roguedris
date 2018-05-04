@@ -30,10 +30,10 @@ mobTurn : (playerStartPosition : Position) ->
           GameState ->
           (mob : Character) ->
           GameState
-mobTurn playerStartPosition gameChars mob
-  = case spatialRelationship (player gameChars) mob of
-         Colocated => attack (player gameChars) mob
-         Apart => gameChars `appendMob` mob
+mobTurn playerStartPosition state mob
+  = case spatialRelationship (player state) mob of
+         Colocated => attack (player state) mob
+         Apart => appendMob mob state
     where
       attack : (attacker : Character) ->
                (defender : Character) ->
@@ -41,22 +41,12 @@ mobTurn playerStartPosition gameChars mob
                GameState
       attack attacker defender =
         case fight attacker defender of
-             MkFightResult p (MkCharacter Z _ _ _) =>
-               deadMob p
-             MkFightResult p m@(MkCharacter (S k) _ _ _) =>
-               aliveMob p m
+             MkFightResult p (MkCharacter Z _ _ _) => state
+             MkFightResult p m@(MkCharacter (S k) _ _ _) => aliveMob m
         where
-          deadMob : (newPlayer : Character) -> GameState
-          deadMob p = MkGameState p (mobs gameChars)
-
-          revertPlayerPosition : Character -> Character
-          revertPlayerPosition = record { coords = playerStartPosition }
-
-          aliveMob : (newPlayer : Character) ->
-                     (newMob : Character) ->
-                     GameState
-          aliveMob p m = MkGameState (revertPlayerPosition p)
-                                     (mobs gameChars ++ [m])
+          aliveMob : (mob : Character) -> GameState
+          aliveMob m = record { player->coords = playerStartPosition }
+                              (appendMob m state)
 
       spatialRelationship : (c1 : Character) ->
                             (c2 : Character) ->

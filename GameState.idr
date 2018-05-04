@@ -11,5 +11,5 @@ record GameState where
   mobs : Vect n Character
 
 export
-appendMob : GameState -> (mob : Character) -> GameState
-appendMob state mob = record { mobs $= (++ [mob]) } state
+appendMob : (mob : Character) -> GameState -> GameState
+appendMob mob = record { mobs $= (++ [mob]) }
