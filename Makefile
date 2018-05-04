@@ -8,7 +8,7 @@ all:
 		Main.idr
 
 clean:
-	rm roguedris
+	rm -f roguedris
 
 play: all
 	./roguedris
