@@ -38,9 +38,9 @@ keyMap = [ ('h', MoveLeft)
 
 public export
 advance : Command -> GameState -> GameState
-advance command state
-  = let newState = playerMoveProposal command state
-    in  foldl (mobTurn (record { player->coords } state))
+advance command oldState
+  = let newState = playerMoveProposal command oldState
+    in  foldl (mobTurn (record { player->coords } oldState))
               (MkGameState (player newState) [])
               (mobs newState)
     where
