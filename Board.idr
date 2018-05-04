@@ -2,6 +2,7 @@ module Board
 
 import Data.Matrix
 
+import Character
 import Config
 import Game
 import Position

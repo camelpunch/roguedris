@@ -1,7 +1,7 @@
 module Display
 
 import Board
-import Game
+import Character
 
 %access public export
 

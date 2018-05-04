@@ -4,6 +4,7 @@ import Data.Vect
 import System
 
 import Board
+import Character
 import Config
 import Display
 import Game
