@@ -34,12 +34,6 @@ keyMap = [ ('h', MoveLeft)
          , ('l', MoveRight)
          ]
 
-playerMoveProposal : Command -> GameState -> GameState
-playerMoveProposal MoveLeft  = record { player->coords->x $= pred }
-playerMoveProposal MoveDown  = record { player->coords->y $= succ }
-playerMoveProposal MoveUp    = record { player->coords->y $= pred }
-playerMoveProposal MoveRight = record { player->coords->x $= succ }
-
 data FightResult = MkFightResult Character Character
 
 fight : (c1 : Character) ->
@@ -95,3 +89,9 @@ advance command state
                                      (player newState, [])
                                      (mobs newState)
     in  MkGameState newPlayer (fromList newMobs)
+    where
+      playerMoveProposal : Command -> GameState -> GameState
+      playerMoveProposal MoveLeft  = record { player->coords->x $= pred }
+      playerMoveProposal MoveDown  = record { player->coords->y $= succ }
+      playerMoveProposal MoveUp    = record { player->coords->y $= pred }
+      playerMoveProposal MoveRight = record { player->coords->x $= succ }
