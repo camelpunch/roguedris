@@ -83,7 +83,7 @@ processMob startPosition (player, mobs) mob
                   ( record { coords = startPosition } newPlayer
                   , mobs ++ [stillAliveMob]
                   )
-         Distant =>
+         Apart =>
            ( player
            , mobs ++ [mob]
            )
