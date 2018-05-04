@@ -33,8 +33,7 @@ mobTurn : (playerStartPosition : Position) ->
 mobTurn playerStartPosition gameChars mob
   = case spatialRelationship (player gameChars) mob of
          Colocated => attack (player gameChars) mob
-         Apart => MkGameState (player gameChars)
-                              (mobs gameChars ++ [mob])
+         Apart => gameChars `appendMob` mob
     where
       attack : (attacker : Character) ->
                (defender : Character) ->
