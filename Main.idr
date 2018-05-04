@@ -8,6 +8,7 @@ import Character
 import Config
 import Display
 import Game
+import GameState
 import NCurses
 import Position
 import Random

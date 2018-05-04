@@ -5,6 +5,7 @@ import Data.Matrix
 import Character
 import Config
 import Game
+import GameState
 import Position
 
 public export

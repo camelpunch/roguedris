@@ -4,16 +4,11 @@ import Data.Vect
 
 import Character
 import Config
+import GameState
 import Position
 import MobTurn
 
 %default total
-
-public export
-record GameState where
-  constructor MkGameState
-  player : Character
-  mobs : Vect n Character
 
 public export
 data Finished : Type where
@@ -44,11 +39,10 @@ keyMap = [ ('h', MoveLeft)
 public export
 advance : Command -> GameState -> GameState
 advance command state
-  = let newState             = playerMoveProposal command state
-        (newPlayer, newMobs) = foldl (mobTurn (record { player->coords } state))
-                                     (player newState, [])
-                                     (mobs newState)
-    in  MkGameState newPlayer (fromList newMobs)
+  = let newState = playerMoveProposal command state
+    in  foldl (mobTurn (record { player->coords } state))
+              (MkGameState (player newState) [])
+              (mobs newState)
     where
       playerMoveProposal : Command -> GameState -> GameState
       playerMoveProposal MoveLeft  = record { player->coords->x $= pred }

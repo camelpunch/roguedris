@@ -1,9 +1,10 @@
 module MobTurn
 
-import Data.Fin
+import Data.Vect
 
-import Position
 import Character
+import GameState
+import Position
 
 data FightResult = MkFightResult Character Character
 
@@ -26,18 +27,19 @@ fight c1 c2
 
 public export
 mobTurn : (playerStartPosition : Position) ->
-          (Character, List Character) ->
+          GameState ->
           (mob : Character) ->
-          (Character, List Character)
-mobTurn playerStartPosition (player, mobs) mob
-  = case spatialRelationship player mob of
-         Colocated => attack player mob
-         Apart => (player, mobs ++ [mob])
+          GameState
+mobTurn playerStartPosition gameChars mob
+  = case spatialRelationship (player gameChars) mob of
+         Colocated => attack (player gameChars) mob
+         Apart => MkGameState (player gameChars)
+                              (mobs gameChars ++ [mob])
     where
       attack : (attacker : Character) ->
                (defender : Character) ->
                {auto prf : coords attacker = coords defender} ->
-               (Character, List Character)
+               GameState
       attack attacker defender =
         case fight attacker defender of
              MkFightResult p (MkCharacter Z _ _ _) =>
@@ -45,16 +47,17 @@ mobTurn playerStartPosition (player, mobs) mob
              MkFightResult p m@(MkCharacter (S k) _ _ _) =>
                aliveMob p m
         where
-          deadMob : (newPlayer : Character) -> (Character, List Character)
-          deadMob p = (p, mobs)
+          deadMob : (newPlayer : Character) -> GameState
+          deadMob p = MkGameState p (mobs gameChars)
 
           revertPlayerPosition : Character -> Character
           revertPlayerPosition = record { coords = playerStartPosition }
 
           aliveMob : (newPlayer : Character) ->
                      (newMob : Character) ->
-                     (Character, List Character)
-          aliveMob p m = (revertPlayerPosition p, mobs ++ [m])
+                     GameState
+          aliveMob p m = MkGameState (revertPlayerPosition p)
+                                     (mobs gameChars ++ [m])
 
       spatialRelationship : (c1 : Character) ->
                             (c2 : Character) ->
