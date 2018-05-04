@@ -17,7 +17,7 @@ getCommand = do
   mvaddstr (MkPoint 0 1) $ "You pressed " ++ show chr
   case lookup chr keyMap of
     Nothing => getCommand
-    Just x => pure x
+    Just cmd => pure cmd
 
 renderLine : Vect Config.width Tile -> IO ()
 renderLine line = do
