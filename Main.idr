@@ -46,14 +46,6 @@ game state = do
     Yes prf => pure $ Lost newState
     No contra => game newState
 
-newGame : Stream (Fin 12) -> GameState
-newGame nums
-  = MkGameState
-    ( MkCharacter 10 (MkPos 10 10) '@' nums )
-    [ MkCharacter 10 (MkPos  5  5) 'J' nums
-    , MkCharacter 10 (MkPos  7  7) 'S' nums
-    ]
-
 main : IO ()
 main = do
   initscr

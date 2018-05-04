@@ -6,8 +6,8 @@ import Config
 import Position
 
 %default total
-%access public export
 
+public export
 record Character where
   constructor MkCharacter
   hp : Nat
@@ -15,18 +15,31 @@ record Character where
   symbol : Char
   attackPoints : Stream (Fin 12)
 
+public export
 record GameState where
   constructor MkGameState
   player : Character
   mobs : Vect n Character
 
+public export
 data Finished : Type where
   Lost : (state : GameState) ->
          { auto prf : record { player->hp } state = Z } ->
          Finished
 
+public export
 data Command = MoveLeft | MoveDown | MoveUp | MoveRight
 
+public export
+newGame : Stream (Fin 12) -> GameState
+newGame nums
+  = MkGameState
+    ( MkCharacter 10 (MkPos 10 10) '@' nums )
+    [ MkCharacter 10 (MkPos  5  5) 'J' nums
+    , MkCharacter 10 (MkPos  7  7) 'S' nums
+    ]
+
+public export
 keyMap : Vect 4 (Char, Command)
 keyMap = [ ('h', MoveLeft)
          , ('j', MoveDown)
@@ -61,27 +74,7 @@ spatialRelationship c1 c2
          Yes _ => Colocated
          No contra => Apart {prf=contra}
 
-processMob : (startPosition : Position) ->
-             (processed : (Character, List Character)) ->
-             (mob : Character) ->
-             (Character, List Character)
-processMob startPosition (player, mobs) mob
-  = case spatialRelationship player mob of
-         Colocated =>
-           case fight player mob of
-                MkFightResult newPlayer (MkCharacter Z _ _ _) =>
-                  ( newPlayer
-                  , mobs
-                  )
-                MkFightResult newPlayer stillAliveMob@(MkCharacter (S k) _ _ _) =>
-                  ( record { coords = startPosition } newPlayer
-                  , mobs ++ [stillAliveMob]
-                  )
-         Apart =>
-           ( player
-           , mobs ++ [mob]
-           )
-
+public export
 advance : Command -> GameState -> GameState
 advance command state
   = let newState             = playerMoveProposal command state
@@ -95,3 +88,24 @@ advance command state
       playerMoveProposal MoveDown  = record { player->coords->y $= succ }
       playerMoveProposal MoveUp    = record { player->coords->y $= pred }
       playerMoveProposal MoveRight = record { player->coords->x $= succ }
+
+      processMob : (startPosition : Position) ->
+                   (processed : (Character, List Character)) ->
+                   (mob : Character) ->
+                   (Character, List Character)
+      processMob startPosition (player, mobs) mob
+        = case spatialRelationship player mob of
+               Colocated =>
+                 case fight player mob of
+                      MkFightResult newPlayer (MkCharacter Z _ _ _) =>
+                        ( newPlayer
+                        , mobs
+                        )
+                      MkFightResult newPlayer stillAliveMob@(MkCharacter (S k) _ _ _) =>
+                        ( record { coords = startPosition } newPlayer
+                        , mobs ++ [stillAliveMob]
+                        )
+               Apart =>
+                 ( player
+                 , mobs ++ [mob]
+                 )
