@@ -11,13 +11,12 @@ import MobTurn
 %default total
 
 public export
-data Finished : Type where
-  Lost : (state : GameState) ->
-         { auto prf : record { player->hp } state = Z } ->
-         Finished
-
-public export
-data Command = MoveLeft | MoveDown | MoveUp | MoveRight
+data Command
+  = MoveLeft
+  | MoveDown
+  | MoveUp
+  | MoveRight
+  | Quit
 
 public export
 newGame : Stream (Fin 12) -> GameState
@@ -27,14 +26,6 @@ newGame nums
     [ MkCharacter 10 (MkPos  5  5) 'J' nums
     , MkCharacter 10 (MkPos  7  7) 'S' nums
     ]
-
-public export
-keyMap : Vect 4 (Char, Command)
-keyMap = [ ('h', MoveLeft)
-         , ('j', MoveDown)
-         , ('k', MoveUp)
-         , ('l', MoveRight)
-         ]
 
 public export
 advance : Command -> GameState -> GameState
@@ -49,3 +40,4 @@ advance command oldState
       playerMoveProposal MoveDown  = record { player->coords->y $= succ }
       playerMoveProposal MoveUp    = record { player->coords->y $= pred }
       playerMoveProposal MoveRight = record { player->coords->x $= succ }
+      playerMoveProposal Quit      = record { player->hp = Z }

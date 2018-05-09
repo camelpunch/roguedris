@@ -13,6 +13,19 @@ import NCurses
 import Position
 import Random
 
+data Finished : Type where
+  Lost : (state : GameState) ->
+         { auto prf : record { player->hp } state = Z } ->
+         Finished
+
+keyMap : List (Char, Command)
+keyMap = [ ('h', MoveLeft)
+         , ('j', MoveDown)
+         , ('k', MoveUp)
+         , ('l', MoveRight)
+         , ('q', Quit)
+         ]
+
 getCommand : IO Command
 getCommand = do
   chr <- getch
