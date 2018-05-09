@@ -25,7 +25,7 @@ fight c1 c2
              (record { attackPoints = futurePoints } c1)
              (record { hp $= (`minus` (finToNat damage)) } c2)
 
-public export
+export
 mobTurn : (playerStartPosition : Position) ->
           GameState ->
           (mob : Character) ->
