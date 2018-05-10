@@ -6,6 +6,8 @@ import Character
 import GameState
 import Position
 
+%default total
+
 data FightResult = MkFightResult Character Character
 
 data SpatialRelationship : Character -> Character -> Type where
