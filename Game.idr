@@ -31,10 +31,13 @@ public export
 advance : Command -> GameState -> GameState
 advance command oldState
   = let newState = playerMoveProposal command oldState
-    in  foldl (mobTurn (record { player->coords } oldState))
-              (MkGameState (player newState) [])
-              (mobs newState)
+    in  discardRoll $ foldl (mobTurn (record { player->coords } oldState))
+                            (MkGameState (player newState) [])
+                            (mobs newState)
     where
+      discardRoll : GameState -> GameState
+      discardRoll = record { player->attackPoints $= drop 1 }
+
       playerMoveProposal : Command -> GameState -> GameState
       playerMoveProposal MoveLeft  = record { player->coords->x $= pred }
       playerMoveProposal MoveDown  = record { player->coords->y $= succ }
